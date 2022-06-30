@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -46,14 +47,23 @@ public class BudgetBot {
                         e.printStackTrace();
                     }
                 }
+                else
+                {
+                    String[] arr = pock.message().text().trim().split(" ");
 
-                String[] arr = pock.message().text().trim().split(" ");
-
-                for (String s: arr) {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8081/api/add/" + s))
-                            .build();
-
+                    for (String s : arr) {
+                        HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create("http://localhost:8081/api/add/" + s))
+                                //.method("post",HttpRequest.BodyPublishers.noBody())
+                                .POST(HttpRequest.BodyPublishers.noBody())
+                                .build();
+                        try {
+                            client.send(request,HttpResponse.BodyHandlers.ofString());
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("http://localhost:8081/api/add/" + s);
+                    }
                 }
 
             });
