@@ -1,6 +1,6 @@
 package com.colossus.dailybudgetbot.entity;
 
-import com.colossus.dailybudgetbot.service.ExpService;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -36,38 +36,75 @@ public class BudgetBot {
 
                 HttpClient client = HttpClient.newHttpClient();
 
-                if (pock.message().text().equals("plan")){
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8081/api/report"))
-                            .build();
-                    try {
-                        HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
-                        bot.execute(new SendMessage(pock.message().chat().id(), response.body()));
-                    } catch (Exception e){
-                        e.printStackTrace();
+                //refactor it, make it switch
+                if (pock.message().text() != null) {
+                    //greetings
+                    if (pock.message().text().equals("/start")) {
+                        bot.execute(new SendMessage(pock.message().chat().id(), "welcome, let's start"));
                     }
-                }
-                else
-                {
-                    String[] arr = pock.message().text().trim().split(" ");
-
-                    for (String s : arr) {
+                    //delete today if made a mistake
+                    if (pock.message().text().equals("/delete")){
                         HttpRequest request = HttpRequest.newBuilder()
-                                .uri(URI.create("http://localhost:8081/api/add/" + s))
-                                //.method("post",HttpRequest.BodyPublishers.noBody())
-                                .POST(HttpRequest.BodyPublishers.noBody())
+                                .uri(URI.create("http://localhost:8081/api/delete/today"))
+                                .DELETE()
                                 .build();
                         try {
-                            client.send(request,HttpResponse.BodyHandlers.ofString());
+                            client.send(request, HttpResponse.BodyHandlers.ofString());
                         } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("http://localhost:8081/api/add/" + s);
+                        bot.execute(new SendMessage(pock.message().chat().id(), "deleting today's data..."));
+                    }
+                    //get daily plan for the rest of the month
+                    if (pock.message().text().equalsIgnoreCase("plan")) {
+                        HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create("http://localhost:8081/api/report"))
+                                .build();
+                        try {
+                            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                            bot.execute(new SendMessage(pock.message().chat().id(), response.body()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        //parsing text from the message
+                        String[] arr = pock.message().text().trim().split(" ");
+
+                        for (String s : arr) {
+
+                            //a checker for invalid inputs
+                            if (checkString(s)) {
+
+                                HttpRequest request = HttpRequest.newBuilder()
+                                        .uri(URI.create("http://localhost:8081/api/add/" + s))
+                                        .POST(HttpRequest.BodyPublishers.noBody())
+                                        .build();
+                                try {
+                                    client.send(request, HttpResponse.BodyHandlers.ofString());
+                                } catch (IOException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                bot.execute(new SendMessage(pock.message().chat().id(), s + " is excepted"));
+                            } else {
+                                bot.execute(new SendMessage(pock.message().chat().id(), "Error: "+ s + " is invalid input. Try something like this: -800 100 50.5"));
+                            }
+                        }
                     }
                 }
-
             });
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
+    }
+
+    private boolean checkString(String s){
+
+        if (s.charAt(0) == '-') s = s.substring(1);
+
+        for (int i = 0; i < s.length(); i++) {
+
+            if (!Character.isDigit(s.charAt(i))) return false;
+        }
+
+        return true;
     }
 }

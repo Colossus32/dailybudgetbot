@@ -23,4 +23,9 @@ public class ExpController {
     public String getDailyBudgetPlan(){
         return service.planForRestOfMonth();
     }
+
+    @DeleteMapping("/delete/today")
+    public void deleteExpForToday(){
+        service.deleteToday();
+    }
 }

@@ -32,7 +32,7 @@ public class ExpServiceImpl implements ExpService {
         return forAdding;
     }
 
-    @Override // just simple calculating for 45000, improve in the future
+    @Override // just simple calculating for 56000, improve in the future
     public String planForRestOfMonth() {
 
         int[] calendar = getTodayDate();
@@ -48,9 +48,22 @@ public class ExpServiceImpl implements ExpService {
                 .mapToDouble(DailyExp::getCost)
                 .sum();
         if (restOfDays == 0) return String.valueOf((45000.0 - sumOfExpForThisMonth));
-        return String.valueOf((45000.0 - sumOfExpForThisMonth) / restOfDays);
+        return String.valueOf((56000.0 - sumOfExpForThisMonth) / restOfDays);
     }
 
+    @Override
+    public void deleteToday() {
+        int[] calendar = getTodayDate();
+        int cDay = calendar[0];
+        int cMonth = calendar[1];
+        int cYear = calendar[2];
+
+
+        repository.findAll().stream()
+                .filter(dailyExp -> dailyExp.getDay() == cDay && dailyExp.getMonth() == cMonth && dailyExp.getYear() == cYear)
+                .findFirst()
+                .ifPresent(dailyExp -> repository.deleteById(dailyExp.getId()));
+    }
 
 
     private DailyExp findForToday(){
@@ -92,7 +105,7 @@ public class ExpServiceImpl implements ExpService {
         }
 
         result[3] = restOfMonth;
-        //System.out.println(restOfMonth);
+
         return result;
     }
 }
