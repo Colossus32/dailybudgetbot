@@ -28,4 +28,9 @@ public class ExpController {
     public void deleteExpForToday(){
         service.deleteToday();
     }
+
+    @GetMapping("/exps")
+    public String getExpsForTheMonth(){
+        return service.showExpsForTheMonth();
+    }
 }

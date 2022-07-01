@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ExpServiceImpl implements ExpService {
@@ -32,7 +31,7 @@ public class ExpServiceImpl implements ExpService {
         return forAdding;
     }
 
-    @Override // just simple calculating for 56000, improve in the future
+    @Override // just simple calculating for 50000, improve in the future
     public String planForRestOfMonth() {
 
         int[] calendar = getTodayDate();
@@ -40,15 +39,13 @@ public class ExpServiceImpl implements ExpService {
         int cYear = calendar[2];
         int restOfDays = calendar[3];
 
-        List<DailyExp> list = repository.findAll().stream()
-                .filter(dailyExp -> dailyExp.getMonth() == cMonth && dailyExp.getYear() == cYear)
-                .collect(Collectors.toList());
+        List<DailyExp> list = repository.findByMonthAndYear(cMonth,cYear);
 
         double sumOfExpForThisMonth = list.stream()
                 .mapToDouble(DailyExp::getCost)
                 .sum();
-        if (restOfDays == 0) return String.valueOf((45000.0 - sumOfExpForThisMonth));
-        return String.valueOf((56000.0 - sumOfExpForThisMonth) / restOfDays);
+        if (restOfDays == 0) return String.valueOf((50000.0 - sumOfExpForThisMonth));
+        return String.valueOf((50000.0 - sumOfExpForThisMonth) / restOfDays);
     }
 
     @Override
@@ -59,12 +56,18 @@ public class ExpServiceImpl implements ExpService {
         int cYear = calendar[2];
 
 
-        repository.findAll().stream()
-                .filter(dailyExp -> dailyExp.getDay() == cDay && dailyExp.getMonth() == cMonth && dailyExp.getYear() == cYear)
+        repository.findByDate(cDay,cMonth,cYear).stream()
                 .findFirst()
                 .ifPresent(dailyExp -> repository.deleteById(dailyExp.getId()));
     }
 
+    @Override
+    public String showExpsForTheMonth() { // write for bot request !!!
+
+        return null;
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////// UTILS
 
     private DailyExp findForToday(){
 
@@ -74,13 +77,12 @@ public class ExpServiceImpl implements ExpService {
         int cYear = calendar[2]; // 1900 +
 
         DailyExp toSave = new DailyExp(0,cDay,cMonth,cYear);
-        List<DailyExp> list = repository.findAll();
-        for (DailyExp e: list) {
-            if (e.getDay() == cDay && e.getMonth() == cMonth && e.getYear() == cYear){
-                toSave.setCost(e.getCost());
-                toSave.setId(e.getId());
-            }
-        }
+
+        repository.findByDate(cDay,cMonth,cYear).forEach(e -> {
+            toSave.setCost(e.getCost());
+            toSave.setId(e.getId());
+        });
+
         return toSave;
     }
 
