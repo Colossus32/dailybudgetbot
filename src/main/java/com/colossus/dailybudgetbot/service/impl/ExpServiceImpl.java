@@ -4,6 +4,7 @@ import com.colossus.dailybudgetbot.entity.DailyExp;
 import com.colossus.dailybudgetbot.repository.ExpRepository;
 import com.colossus.dailybudgetbot.service.ExpService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +19,7 @@ public class ExpServiceImpl implements ExpService {
     }
 
     @Override
+    @Transactional
     public DailyExp addExp(String numStr) {
 
         double num = numStr.charAt(0) == '-' ? Double.parseDouble(numStr.substring(1)) * -1 : Double.parseDouble(numStr);
@@ -32,6 +34,7 @@ public class ExpServiceImpl implements ExpService {
     }
 
     @Override // just simple calculating for 50000, improve in the future
+    @Transactional
     public String planForRestOfMonth() {
 
         int[] calendar = getTodayDate();
@@ -44,17 +47,18 @@ public class ExpServiceImpl implements ExpService {
         double sumOfExpForThisMonth = list.stream()
                 .mapToDouble(DailyExp::getCost)
                 .sum();
-        if (restOfDays == 0) return String.valueOf((50000.0 - sumOfExpForThisMonth));
-        return String.valueOf((50000.0 - sumOfExpForThisMonth) / restOfDays);
+        if (restOfDays == 0) restOfDays = 1;
+        return String.format("%.2f", (50000.0 - sumOfExpForThisMonth) / restOfDays) + " RUB";
     }
 
     @Override
+    @Transactional
     public void deleteToday() {
+
         int[] calendar = getTodayDate();
         int cDay = calendar[0];
         int cMonth = calendar[1];
         int cYear = calendar[2];
-
 
         repository.findByDate(cDay,cMonth,cYear).stream()
                 .findFirst()
@@ -62,9 +66,15 @@ public class ExpServiceImpl implements ExpService {
     }
 
     @Override
-    public String showExpsForTheMonth() { // write for bot request !!!
-
-        return null;
+    @Transactional
+    public String showExpsForTheMonth() {
+        int[] calendar = getTodayDate();
+        StringBuilder builder = new StringBuilder();
+        repository.findByMonthAndYear(calendar[1],calendar[2])
+                .forEach(dailyExp -> {
+                    builder.append(createDayFormReport(dailyExp)).append("\n");
+                });
+        return builder.toString();
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////// UTILS
@@ -109,5 +119,22 @@ public class ExpServiceImpl implements ExpService {
         result[3] = restOfMonth;
 
         return result;
+    }
+
+    private String createDayFormReport(DailyExp dailyExp){
+
+        String day = String.valueOf(dailyExp.getDay());
+        String month = String.valueOf(dailyExp.getMonth());
+        String cost = String.valueOf(dailyExp.getCost());
+
+        StringBuilder builder = new StringBuilder();
+
+        if (day.length() < 2) builder.append("0");
+        builder.append(day).append(".");
+
+        if (month.length() < 2) builder.append("0");
+        builder.append(month).append("  |  ").append(cost);
+
+        return builder.toString();
     }
 }

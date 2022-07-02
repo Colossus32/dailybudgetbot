@@ -2,6 +2,7 @@ package com.colossus.dailybudgetbot.repository;
 
 import com.colossus.dailybudgetbot.entity.DailyExp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -17,6 +18,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
 
     @Override
+    @Transactional
     public List<DailyExp> findByMonthAndYear(int month, int year) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -34,6 +36,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     @Override
+    @Transactional
     public List<DailyExp> findByDate(int day, int month, int year) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
