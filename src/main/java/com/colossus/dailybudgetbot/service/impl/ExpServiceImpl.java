@@ -3,6 +3,7 @@ package com.colossus.dailybudgetbot.service.impl;
 import com.colossus.dailybudgetbot.entity.DailyExp;
 import com.colossus.dailybudgetbot.repository.ExpRepository;
 import com.colossus.dailybudgetbot.service.ExpService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,8 @@ import java.util.List;
 @Service
 public class ExpServiceImpl implements ExpService {
 
+    @Value("${planExp}")
+    private double planExp;
     private final ExpRepository repository;
 
     public ExpServiceImpl(ExpRepository repository) {
@@ -48,7 +51,7 @@ public class ExpServiceImpl implements ExpService {
                 .mapToDouble(DailyExp::getCost)
                 .sum();
         if (restOfDays == 0) restOfDays = 1;
-        return String.format("%.2f", (50000.0 - sumOfExpForThisMonth) / restOfDays) + " RUB";
+        return String.format("%.2f", (planExp - sumOfExpForThisMonth) / restOfDays) + " RUB";
     }
 
     @Override
@@ -75,6 +78,21 @@ public class ExpServiceImpl implements ExpService {
                     builder.append(createDayFormReport(dailyExp)).append("\n");
                 });
         return builder.toString();
+    }
+
+    @Override
+    public String showBalance() {
+        int[] calendar = getTodayDate();
+        calendar[1] --;
+
+        if (calendar[1] < 0){
+            calendar[1] = 11;
+            calendar[2] = calendar[2] - 1;
+        }
+        double sum = repository.findByMonthAndYear(calendar[1],calendar[2]).stream()
+                .mapToDouble(DailyExp::getCost).sum();
+
+        return String.valueOf(planExp - sum);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////// UTILS

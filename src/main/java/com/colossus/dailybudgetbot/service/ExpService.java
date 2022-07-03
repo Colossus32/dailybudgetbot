@@ -7,4 +7,5 @@ public interface ExpService {
     String planForRestOfMonth();
     void deleteToday();
     String showExpsForTheMonth();
+    String showBalance();
 }

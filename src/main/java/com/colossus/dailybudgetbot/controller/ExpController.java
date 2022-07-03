@@ -33,4 +33,9 @@ public class ExpController {
     public String getExpsForTheMonth(){
         return service.showExpsForTheMonth();
     }
+
+    @GetMapping("/balance")
+    public String showBalance(){
+        return service.showBalance();
+    }
 }
