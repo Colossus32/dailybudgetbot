@@ -36,27 +36,16 @@ public class BudgetBot {
         bot.setUpdatesListener(element -> {
             element.forEach(pock -> {
 
-                HttpClient client = HttpClient.newHttpClient();
+                //HttpClient client = HttpClient.newHttpClient();
 
                 if (pock.message().text() != null) {
                     String text = pock.message().text().toLowerCase();
                     Long chatId = pock.message().chat().id();
-                    switch (text) {
-                        case "/start":
-                            //save chatID to the database
-                            HttpRequest requestForSave = HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8081/api/chats?id=" + chatId))
-                                    .POST(HttpRequest.BodyPublishers.noBody())
-                                    .build();
-                            try {
-                                client.send(requestForSave, HttpResponse.BodyHandlers.ofString());
-                            } catch (IOException | InterruptedException e) {
-                                e.printStackTrace();
-                            }
 
-                            //greetings
-                            bot.execute(new SendMessage(chatId, "welcome, let's start"));
-                            botMenu(chatId);
+                    switch (text) {
+
+                        case "/start":
+                            botStart(chatId);
                             break;
 
                         case "/help":
@@ -64,84 +53,23 @@ public class BudgetBot {
                             break;
 
                         case "/month":
-                            HttpRequest request = HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8081/api/exps"))
-                                    .build();
-                            try {
-                                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                                bot.execute(new SendMessage(chatId, response.body()));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            botMonth(chatId);
                             break;
 
                         case "/delete":
-                            request = HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8081/api/delete/today"))
-                                    .DELETE()
-                                    .build();
-                            try {
-                                client.send(request, HttpResponse.BodyHandlers.ofString());
-                            } catch (IOException | InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            bot.execute(new SendMessage(chatId, "deleting today's data..."));
+                            botDelete(chatId);
                             break;
 
                         case "/plan":
-                            request = HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8081/api/report"))
-                                    .build();
-                            try {
-                                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                                bot.execute(new SendMessage(chatId, response.body()));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            botPlan(chatId);
                             break;
 
                         case "/subscribe":
-
-                            request = HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8081/api/chats/subscribe?id=" + chatId))
-                                    .PUT(HttpRequest.BodyPublishers.noBody())
-                                    .build();
-
-                            try {
-                                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                                String subscribeText;
-                                if (response.body().equals("false")) subscribeText = "Now you're not subscribed.";
-                                else subscribeText = "Now you're subscribed for the reports.";
-                                bot.execute(new SendMessage(chatId, subscribeText));
-
-                            } catch (IOException | InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
+                            botSubscribe(chatId);
                             break;
 
                         default:
-                            String[] arr = pock.message().text().trim().split(" ");
-
-                            for (String s : arr) {
-
-                                //a checker for invalid inputs
-                                if (checkString(s)) {
-
-                                    request = HttpRequest.newBuilder()
-                                            .uri(URI.create("http://localhost:8081/api/add/" + s))
-                                            .POST(HttpRequest.BodyPublishers.noBody())
-                                            .build();
-                                    try {
-                                        client.send(request, HttpResponse.BodyHandlers.ofString());
-                                    } catch (IOException | InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    bot.execute(new SendMessage(chatId, s + " is excepted"));
-                                } else {
-                                    bot.execute(new SendMessage(chatId, "Error: " + s + " is invalid input. Try something like this: -800 100 50.5"));
-                                }
-                            }
+                            botDefault(chatId,pock.message().text().trim().split(" "));
                             break;
                     }
                 }
@@ -163,10 +91,8 @@ public class BudgetBot {
         return true;
     }
 
-    //@Scheduled(fixedDelayString = )
-    //@Scheduled(fixedDelay = 3000L)
+
     //@Scheduled(cron = "${report.testdelay}")
-    //@Scheduled(cron = "*/10 * * * * *")
     @Scheduled(cron = "${report.delay}")
     public void scheduledReport(){
 
@@ -188,7 +114,7 @@ public class BudgetBot {
 
             //send message to all subscribers
             for (String id: list) {
-                bot.execute(new SendMessage(Long.parseLong(id), "Previous month balance: " + balance + " RUB"));
+                bot.execute(new SendMessage(Long.parseLong(id), "Previous month balance: " + balance));
             }
 
         } catch (Exception e) {
@@ -216,18 +142,112 @@ public class BudgetBot {
 
             //send message to all subscribers
             for (String id: list) {
-                bot.execute(new SendMessage(Long.parseLong(id), "Daily plan: " + plan + " RUB"));
+                bot.execute(new SendMessage(Long.parseLong(id), "Daily plan: " + plan));
             }
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void botMenu(Long chatId){
+    private void botMenu(Long chatId){
         bot.execute(new SendMessage(chatId, "100 -50 25.5    add expensive for the current day\n" +
                 "/plan         get the daily plan for the rest of the month\n" +
                 "/delete       delete the current day's data\n" +
                 "/month        get exps for each day of the month\n" +
                 "/subscribe    change your subscribe for reports"));
+    }
+
+    private void botStart(Long chatId){
+        //save chatID to the database
+        HttpRequest requestForSave = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/chats?id=" + chatId))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        try {
+            HttpClient.newHttpClient().send(requestForSave, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        //greetings
+        bot.execute(new SendMessage(chatId, "welcome, let's start"));
+        botMenu(chatId);
+    }
+
+    private void botMonth(Long chatId){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/exps"))
+                .build();
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            bot.execute(new SendMessage(chatId, response.body()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void botDelete(Long chatId){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/delete/today"))
+                .DELETE()
+                .build();
+        try {
+            HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        bot.execute(new SendMessage(chatId, "deleting today's data..."));
+    }
+
+    private void botPlan(Long chatId){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/report"))
+                .build();
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            bot.execute(new SendMessage(chatId, response.body()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void botSubscribe(Long chatId){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/chats/subscribe?id=" + chatId))
+                .PUT(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            String subscribeText = "Now you're subscribed for the reports.";
+            if (response.body().equals("false")) subscribeText = "Now you're not subscribed.";
+            bot.execute(new SendMessage(chatId, subscribeText));
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void botDefault(Long chatId, String[] arr){
+
+        for (String s : arr) {
+
+            //a checker for invalid inputs
+            if (checkString(s)) {
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8081/api/add/" + s))
+                        .POST(HttpRequest.BodyPublishers.noBody())
+                        .build();
+                try {
+                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                bot.execute(new SendMessage(chatId, s + " is excepted"));
+            } else {
+                bot.execute(new SendMessage(chatId, "Error: " + s + " is invalid input. Try something like this: -800 100 50.5\n" +
+                        "or use /help to see available commands"));
+            }
+        }
     }
 }
