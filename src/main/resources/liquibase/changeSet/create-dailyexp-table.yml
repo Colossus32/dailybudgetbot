@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: DEV-2
+      author: Colossus
+      changes:
+        - createTable:
+            tableName: daily_exp
+            remarks: saving main entity
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: daily_exp_pk
+                    nullable: false
+              - column:
+                  name: cost
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: day
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: month
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: year
+                  type: integer
+                  constraints:
+                    nullable: false

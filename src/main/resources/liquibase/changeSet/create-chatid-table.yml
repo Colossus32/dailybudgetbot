@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: DEV-1
+      author: Colossus
+      changes:
+        - createTable:
+            tableName: chat_id
+            remarks: saving chat ids
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: chatid_pk
+                    nullable: false
+              - column:
+                  name: subscribe
+                  type: boolean
+                  defaultValue: true
+                  constraints:
+                    nullable: false
