@@ -16,7 +16,6 @@ public class CustomRepositoryImpl implements CustomRepository {
     @Autowired
     private EntityManager entityManager;
 
-
     @Override
     @Transactional
     public List<DailyExp> findByMonthAndYear(int month, int year) {

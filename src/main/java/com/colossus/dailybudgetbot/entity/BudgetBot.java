@@ -36,8 +36,6 @@ public class BudgetBot {
         bot.setUpdatesListener(element -> {
             element.forEach(pock -> {
 
-                //HttpClient client = HttpClient.newHttpClient();
-
                 if (pock.message().text() != null) {
                     String text = pock.message().text().toLowerCase();
                     Long chatId = pock.message().chat().id();
