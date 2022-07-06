@@ -93,7 +93,7 @@ class ExpServiceImplTest {
             year = YEAR - 1;
         }
         else {
-            month = MONTH;
+            month = MONTH-1;
             year = YEAR;
         }
         service.saveExp(new DailyExp(COSTS,DAY,month,year));
