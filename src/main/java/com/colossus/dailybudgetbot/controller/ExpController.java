@@ -36,6 +36,6 @@ public class ExpController {
 
     @GetMapping("/balance")
     public String showBalance(){
-        return service.showBalance();
+        return service.showPreviousMonthBalance();
     }
 }

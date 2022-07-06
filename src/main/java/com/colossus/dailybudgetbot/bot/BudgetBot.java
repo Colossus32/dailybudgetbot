@@ -1,4 +1,4 @@
-package com.colossus.dailybudgetbot.entity;
+package com.colossus.dailybudgetbot.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -92,7 +92,7 @@ public class BudgetBot {
 
     //@Scheduled(cron = "${report.testdelay}")
     @Scheduled(cron = "${report.delay}")
-    public void scheduledReport(){
+    public void scheduledPreviousMonthReport(){
 
         //get all chatId subscribed
         HttpRequest request = HttpRequest.newBuilder()
