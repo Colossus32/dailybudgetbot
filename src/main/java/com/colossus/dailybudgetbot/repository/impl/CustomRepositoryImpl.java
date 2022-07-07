@@ -1,6 +1,7 @@
-package com.colossus.dailybudgetbot.repository;
+package com.colossus.dailybudgetbot.repository.impl;
 
 import com.colossus.dailybudgetbot.entity.DailyExp;
+import com.colossus.dailybudgetbot.repository.CustomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

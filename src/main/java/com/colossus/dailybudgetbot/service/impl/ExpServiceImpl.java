@@ -48,7 +48,7 @@ public class ExpServiceImpl implements ExpService {
         double sumOfExpForThisMonth = list.stream()
                 .mapToDouble(DailyExp::getCost)
                 .sum();
-        if (restOfDays == 0) restOfDays = 1;
+
         return String.format("%.2f", (planExp - sumOfExpForThisMonth) / restOfDays) + " RUB";
     }
 

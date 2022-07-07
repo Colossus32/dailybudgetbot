@@ -21,10 +21,10 @@ public class HelpfulUtils {
 
         if ((calendar.getTime().getYear() + 1900) % 4 ==0){
             int maxDays = monthsExtra[calendar.getTime().getMonth()];
-            restOfMonth = maxDays - list.get(0);
+            restOfMonth = maxDays - list.get(0) + 1; //include current day
         } else {
             int maxDays = monthsNormal[calendar.getTime().getMonth()];
-            restOfMonth = maxDays - list.get(0);
+            restOfMonth = maxDays - list.get(0) + 1;//include current day
         }
 
         list.add(restOfMonth);
