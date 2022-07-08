@@ -47,4 +47,17 @@ public class HelpfulUtils {
 
         return builder.toString();
     }
+
+    public static boolean checkString(String s) {
+
+        if (s.charAt(0) == '-') s = s.substring(1);
+
+        if (s.length() > 6) return false;
+        for (int i = 0; i < s.length(); i++) {
+
+            if (!Character.isDigit(s.charAt(i))) return false;
+        }
+
+        return true;
+    }
 }

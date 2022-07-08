@@ -5,7 +5,7 @@ import com.colossus.dailybudgetbot.service.ExpService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class ExpController {
 
     private final ExpService service;
@@ -24,7 +24,7 @@ public class ExpController {
         return service.planForRestOfMonth();
     }
 
-    @DeleteMapping("/delete/today")
+    @DeleteMapping("/today")
     public void deleteExpForToday(){
         service.deleteToday();
     }

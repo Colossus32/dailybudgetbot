@@ -26,7 +26,7 @@ public class ChatIdServiceImpl implements ChatIdService {
     }
 
     @Override
-    public String getAllSubscribers() {
+    public String getAllSubscribers() { //refactor it
         StringBuilder builder = new StringBuilder();
         repository.findAll().stream().filter(ChatId::isSubscribe).map(ChatId::getId).forEach(id -> builder.append(id).append(" "));
         return builder.toString().trim();

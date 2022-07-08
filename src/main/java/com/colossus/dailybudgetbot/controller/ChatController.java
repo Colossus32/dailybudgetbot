@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/chats")
+@RequestMapping("/api/v1/chats")
 public class ChatController {
 
     private final ChatIdService service;
@@ -33,7 +33,7 @@ public class ChatController {
         return service.getAllSubscribers();
     }
 
-    @PutMapping("/subscribe")
+    @PatchMapping("/subscriber")
     @Transactional
     public boolean changeSubscribe(@RequestParam("id") Long id){
         return service.changeSubscribe(id);

@@ -1,5 +1,6 @@
 package com.colossus.dailybudgetbot.bot;
 
+import com.colossus.dailybudgetbot.util.HelpfulUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -76,20 +77,6 @@ public class BudgetBot {
         });
     }
 
-
-    private boolean checkString(String s) {
-
-        if (s.charAt(0) == '-') s = s.substring(1);
-
-        for (int i = 0; i < s.length(); i++) {
-
-            if (!Character.isDigit(s.charAt(i))) return false;
-        }
-
-        return true;
-    }
-
-
     //@Scheduled(cron = "${report.testdelay}")
     @Scheduled(cron = "${report.delay}")
     public void scheduledPreviousMonthReport(){
@@ -158,7 +145,7 @@ public class BudgetBot {
     private void botStart(Long chatId){
         //save chatID to the database
         HttpRequest requestForSave = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/chats?id=" + chatId))
+                .uri(URI.create("http://localhost:8081/api/v1/chats?id=" + chatId))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
         try {
@@ -173,7 +160,7 @@ public class BudgetBot {
 
     private void botMonth(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/exps"))
+                .uri(URI.create("http://localhost:8081/api/v1/exps"))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -185,7 +172,7 @@ public class BudgetBot {
 
     private void botDelete(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/delete/today"))
+                .uri(URI.create("http://localhost:8081/api/v1/today"))
                 .DELETE()
                 .build();
         try {
@@ -198,7 +185,7 @@ public class BudgetBot {
 
     private void botPlan(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/report"))
+                .uri(URI.create("http://localhost:8081/api/v1/report"))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -210,7 +197,7 @@ public class BudgetBot {
 
     private void botSubscribe(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/chats/subscribe?id=" + chatId))
+                .uri(URI.create("http://localhost:8081/api/v1/chats/subscriber?id=" + chatId))
                 .PUT(HttpRequest.BodyPublishers.noBody())
                 .build();
 
@@ -230,10 +217,10 @@ public class BudgetBot {
         for (String s : arr) {
 
             //a checker for invalid inputs
-            if (checkString(s)) {
+            if (HelpfulUtils.checkString(s)) {
 
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8081/api/add/" + s))
+                        .uri(URI.create("http://localhost:8081/api/v1/add/" + s))
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
                 try {
