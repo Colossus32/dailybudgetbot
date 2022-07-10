@@ -22,7 +22,7 @@ public class BudgetBot {
 
     public BudgetBot() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("token.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("G:\\_JAVA\\dailybudgetbot\\token.txt"));
             String token = reader.readLine();
             reader.close();
             this.bot = new TelegramBot(token);
