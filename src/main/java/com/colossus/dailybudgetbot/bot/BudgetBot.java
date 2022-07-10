@@ -77,13 +77,14 @@ public class BudgetBot {
         });
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////Schedule block
     //@Scheduled(cron = "${report.testdelay}")
     @Scheduled(cron = "${report.delay}")
     public void scheduledPreviousMonthReport(){
 
         //get all chatId subscribed
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/chats/all"))
+                .uri(URI.create("http://localhost:8081/api/v1/chats/all"))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -91,7 +92,7 @@ public class BudgetBot {
 
             //get balance for previous month
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8081/api/balance"))
+                    .uri(URI.create("http://localhost:8081/api/v1/balance"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -111,7 +112,7 @@ public class BudgetBot {
     //@Scheduled(cron = "${report.dailyremindertest}")
     public void sendDailyReminder(){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/chats/all"))
+                .uri(URI.create("http://localhost:8081/api/v1/chats/all"))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -119,7 +120,7 @@ public class BudgetBot {
 
             //get daily plan
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8081/api/report"))
+                    .uri(URI.create("http://localhost:8081/api/v1/report"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -134,6 +135,23 @@ public class BudgetBot {
         }
     }
 
+    @Scheduled(cron = "${report.rewriteplan}")
+    //@Scheduled(cron = "${report.rewriteplantest}")
+    public void recalculateDailyPlan(){
+        HelpfulUtils.recalculatePlan();
+    }
+
+    @Scheduled(cron = "${report.backupperiod}")
+    //@Scheduled(cron = "${report.backupperiodtest}")
+    public void cleanBackUp(){
+
+        try {
+            HelpfulUtils.cleanBackUp();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////Schedule block
     private void botMenu(Long chatId){
         bot.execute(new SendMessage(chatId, "100 -50 25.5    add expensive for the current day\n" +
                 "/plan         get the daily plan for the rest of the month\n" +
@@ -184,13 +202,11 @@ public class BudgetBot {
     }
 
     private void botPlan(Long chatId){
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/report"))
-                .build();
+
         try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            bot.execute(new SendMessage(chatId, response.body()));
-        } catch (Exception e) {
+            String answer = HelpfulUtils.readDailyPlanFromTheFile() + " RUB";
+            bot.execute(new SendMessage(chatId, answer));
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -225,6 +241,7 @@ public class BudgetBot {
                         .build();
                 try {
                     HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                    HelpfulUtils.writeMessageToFile(chatId,s);
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }

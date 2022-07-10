@@ -2,6 +2,13 @@ package com.colossus.dailybudgetbot.util;
 
 import com.colossus.dailybudgetbot.entity.DailyExp;
 
+import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -59,5 +66,61 @@ public class HelpfulUtils {
         }
 
         return true;
+    }
+
+    public static void saveToFileTodayDailyBudget(String s) throws IOException {
+
+        try(FileWriter fw = new FileWriter("dailyplan.txt");
+            BufferedWriter writer = new BufferedWriter(fw)){
+            writer.write(s);
+            writer.flush();
+        }
+    }
+
+    public static String readDailyPlanFromTheFile() throws IOException {
+
+        File file = new File("dailyplan.txt");
+        if (!file.exists()) recalculatePlan();
+
+        try(FileReader fr = new FileReader(file);
+        BufferedReader reader = new BufferedReader(fr)){
+            return reader.readLine();
+        }
+    }
+
+    public static void writeMessageToFile(Long chatId, String toSave) throws IOException {
+        try (FileWriter fw = new FileWriter("dailybackup.txt", true);
+        BufferedWriter writer = new BufferedWriter(fw)){
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String time = dateFormat.format(new Timestamp(System.currentTimeMillis()));
+
+            writer.write(String.format("date: %s    user: %d    message: %s\n",time, chatId,toSave));
+            writer.flush();
+        }
+    }
+
+    public static void cleanBackUp() throws IOException {
+        File f = new File("dailybackup.txt");
+        if (f.delete()){
+            System.out.println("Backup deleted.");
+        } else {
+            System.out.println("There is no backup file");
+        }
+    }
+
+    public static void recalculatePlan(){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8081/api/v1/report"))
+                .build();
+
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            String fromFile = response.body();
+            String toSave = fromFile.substring(0, fromFile.indexOf(" "));
+            HelpfulUtils.saveToFileTodayDailyBudget(toSave);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
