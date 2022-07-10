@@ -70,7 +70,7 @@ public class HelpfulUtils {
 
     public static void saveToFileTodayDailyBudget(String s) throws IOException {
 
-        try(FileWriter fw = new FileWriter("dailyplan.txt");
+        try(FileWriter fw = new FileWriter("G:\\_JAVA\\dailybudgetbot\\dailyplan.txt");
             BufferedWriter writer = new BufferedWriter(fw)){
             writer.write(s);
             writer.flush();
@@ -79,7 +79,7 @@ public class HelpfulUtils {
 
     public static String readDailyPlanFromTheFile() throws IOException {
 
-        File file = new File("dailyplan.txt");
+        File file = new File("G:\\_JAVA\\dailybudgetbot\\dailyplan.txt");
         if (!file.exists()) recalculatePlan();
 
         try(FileReader fr = new FileReader(file);
@@ -89,19 +89,18 @@ public class HelpfulUtils {
     }
 
     public static void writeMessageToFile(Long chatId, String toSave) throws IOException {
-        try (FileWriter fw = new FileWriter("dailybackup.txt", true);
-        BufferedWriter writer = new BufferedWriter(fw)){
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            String time = dateFormat.format(new Timestamp(System.currentTimeMillis()));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("G:\\_JAVA\\dailybudgetbot\\dailybackup.txt", true));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        String time = dateFormat.format(new Timestamp(System.currentTimeMillis()));
 
-            writer.write(String.format("date: %s    user: %d    message: %s\n",time, chatId,toSave));
-            writer.flush();
-        }
+        writer.write(String.format("date: %s    user: %d    message: %s\n",time, chatId,toSave));
+        writer.flush();
+        writer.close();
     }
 
     public static void cleanBackUp() throws IOException {
-        File f = new File("dailybackup.txt");
+        File f = new File("G:\\_JAVA\\dailybudgetbot\\dailybackup.txt");
         if (f.delete()){
             System.out.println("Backup deleted.");
         } else {
