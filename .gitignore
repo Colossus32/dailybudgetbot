@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-token.txt
+*.txt
