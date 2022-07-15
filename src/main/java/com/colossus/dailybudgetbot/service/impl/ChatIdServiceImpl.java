@@ -22,6 +22,7 @@ public class ChatIdServiceImpl implements ChatIdService {
 
     @Override
     public ChatId getChatId(long id) {
+
         return repository.findById(id).orElse(null);
     }
 

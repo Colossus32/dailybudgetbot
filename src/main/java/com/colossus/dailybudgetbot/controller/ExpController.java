@@ -2,17 +2,17 @@ package com.colossus.dailybudgetbot.controller;
 
 import com.colossus.dailybudgetbot.entity.DailyExp;
 import com.colossus.dailybudgetbot.service.ExpService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
+@Transactional
+@RequiredArgsConstructor
 public class ExpController {
 
     private final ExpService service;
-
-    public ExpController(ExpService service) {
-        this.service = service;
-    }
 
     @PostMapping("/add/{exp}")
     public DailyExp addExp(@PathVariable String exp){

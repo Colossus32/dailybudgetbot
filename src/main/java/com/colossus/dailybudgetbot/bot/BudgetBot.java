@@ -4,6 +4,7 @@ import com.colossus.dailybudgetbot.util.HelpfulUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Component
+@Slf4j
 public class BudgetBot {
 
     TelegramBot bot;
@@ -27,7 +29,7 @@ public class BudgetBot {
             reader.close();
             this.bot = new TelegramBot(token);
         } catch (Exception e) {
-            System.out.println("bot initialisation error");
+            log.error("bot initialisation error");
             e.printStackTrace();
         }
     }
@@ -40,6 +42,7 @@ public class BudgetBot {
                 if (pock.message().text() != null) {
                     String text = pock.message().text().toLowerCase();
                     Long chatId = pock.message().chat().id();
+                    log.info("Got a new not null message from {}", chatId);
 
                     switch (text) {
 

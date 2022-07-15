@@ -12,13 +12,13 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
+@Transactional
 public class CustomRepositoryImpl implements CustomRepository {
 
     @Autowired
     private EntityManager entityManager;
 
     @Override
-    @Transactional
     public List<DailyExp> findByMonthAndYear(int month, int year) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -36,7 +36,6 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     @Override
-    @Transactional
     public List<DailyExp> findByDate(int day, int month, int year) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();

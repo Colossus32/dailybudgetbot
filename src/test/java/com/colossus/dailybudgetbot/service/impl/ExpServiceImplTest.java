@@ -41,9 +41,9 @@ class ExpServiceImplTest {
     }
 
     @Test
-    void addExp() {
+    void should_add_cost_to_daily_exp() {
         DailyExp toSave = createSimpleExp();
-        toSave.setId(1L);
+        //toSave.setId(1L);
         service.saveExp(toSave);
         DailyExp fromDB = service.findAll().get(0);
 
@@ -55,7 +55,7 @@ class ExpServiceImplTest {
     }
 
     @Test
-    void planForRestOfMonth() {
+    void should_give_rest_of_the_month() {
         service.saveExp(createSimpleExp());
         List<Integer> calendar = HelpfulUtils.getTodayDate();
         double sum = service.findByMonthAndYear(MONTH,YEAR).stream()
@@ -68,7 +68,7 @@ class ExpServiceImplTest {
     }
 
     @Test
-    void deleteToday() {
+    void should_delete_exp_for_today() {
         service.saveExp(createSimpleExp());
         service.deleteToday();
         List<DailyExp> fromDB = service.findAll();
@@ -76,7 +76,7 @@ class ExpServiceImplTest {
     }
 
     @Test
-    void showExpsForTheMonth() {
+    void should_show_exps_for_the_month() {
         service.saveExp(createSimpleExp());
 
         String toCheck = service.showExpsForTheMonth();
@@ -86,7 +86,7 @@ class ExpServiceImplTest {
     }
 
     @Test
-    void showBalance() {
+    void should_show_balance_for_previous_month() {
         int month, year;
         if (MONTH == 0){
             month = 11;
@@ -108,6 +108,5 @@ class ExpServiceImplTest {
     private DailyExp createSimpleExp(){
         return new DailyExp(COSTS,DAY,MONTH,YEAR);
     }
-
 
 }
