@@ -4,14 +4,17 @@ import com.colossus.dailybudgetbot.entity.DailyExp;
 import com.colossus.dailybudgetbot.repository.ExpRepository;
 import com.colossus.dailybudgetbot.service.ExpService;
 import com.colossus.dailybudgetbot.util.HelpfulUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ExpServiceImpl implements ExpService {
+
 
     @Value("${planExp}")
     private double planExp;
@@ -71,10 +74,15 @@ public class ExpServiceImpl implements ExpService {
     public String showExpsForTheMonth() {
         List<Integer> calendar = HelpfulUtils.getTodayDate();
         StringBuilder builder = new StringBuilder();
+        AtomicReference<Double> sum = new AtomicReference<>((double) 0);
         findByMonthAndYear(calendar.get(1),calendar.get(2))
                 .forEach(dailyExp -> {
                     builder.append(HelpfulUtils.createDayFormReport(dailyExp)).append("\n");
+                    sum.updateAndGet(v -> (double) (v + dailyExp.getCost()));
                 });
+
+        String total = String.format("%.2f", sum.get()) + "  /  " + planExp + " RUB";
+        builder.append("\nExpenses: ").append("\n").append(total);
         return builder.toString();
     }
 
