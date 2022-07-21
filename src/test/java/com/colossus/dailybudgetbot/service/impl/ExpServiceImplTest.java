@@ -43,7 +43,6 @@ class ExpServiceImplTest {
     @Test
     void should_add_cost_to_daily_exp() {
         DailyExp toSave = createSimpleExp();
-        //toSave.setId(1L);
         service.saveExp(toSave);
         DailyExp fromDB = service.findAll().get(0);
 
@@ -80,7 +79,7 @@ class ExpServiceImplTest {
         service.saveExp(createSimpleExp());
 
         String toCheck = service.showExpsForTheMonth();
-        String target = HelpfulUtils.createDayFormReport(service.findAll().get(0)) + "\n";
+        String target = HelpfulUtils.createDayFormReport(service.findAll().get(0)) + "\n" + "\nExpenses: \n" + "1000,00  /  50000.0 RUB";
 
         assertEquals(target,toCheck);
     }
