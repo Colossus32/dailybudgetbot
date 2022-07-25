@@ -39,7 +39,7 @@ public class BudgetBot {
         bot.setUpdatesListener(element -> {
             element.forEach(pock -> {
 
-                if (pock.message().text() != null) {
+                if (pock.message() != null && pock.message().text() != null) {
                     String text = pock.message().text().toLowerCase();
                     Long chatId = pock.message().chat().id();
                     log.info("Got a new not null message from {}", chatId);
