@@ -3,3 +3,5 @@ databaseChangeLog:
       file: liquibase/changeSet/create-chatid-table.yml
   - include:
       file: liquibase/changeSet/create-dailyexp-table.yml
+  - include:
+      file: liquibase/changeSet/create-daily-plan-table.yml

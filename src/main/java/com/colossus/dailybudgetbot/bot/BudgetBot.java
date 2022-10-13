@@ -71,8 +71,8 @@ public class BudgetBot {
                             break;
 
                         default:
-                            botDefault(chatId,pock.message().text().trim().split(" "));
-                            break;
+
+                            botDefault(chatId,HelpfulUtils.cleanText(pock.message().text()));
                     }
                 }
             });

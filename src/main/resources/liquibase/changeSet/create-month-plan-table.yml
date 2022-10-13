@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: DEV-4
+      author: Colossus
+      changes:
+        - createTable:
+            tableName: month_plan
+            remarks: saving month plan
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: month_plan_pk
+                    nullable: false
+              - column:
+                  name: month_plan
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date
+                  type: timestamp
+                  constraints:
+                    nullable: false

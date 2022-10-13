@@ -4,7 +4,7 @@ import com.colossus.dailybudgetbot.entity.DailyExp;
 import com.colossus.dailybudgetbot.repository.ExpRepository;
 import com.colossus.dailybudgetbot.service.ExpService;
 import com.colossus.dailybudgetbot.util.HelpfulUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,16 +13,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class ExpServiceImpl implements ExpService {
-
 
     @Value("${planExp}")
     private double planExp;
     private final ExpRepository repository;
 
-    public ExpServiceImpl(ExpRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     @Transactional
@@ -143,5 +140,6 @@ public class ExpServiceImpl implements ExpService {
 
         return toSave;
     }
+///////////////////////////////////////////////////////////////////////////////////////////////////// MonthPlan Repo
 
 }

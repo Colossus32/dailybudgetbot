@@ -9,11 +9,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 public class HelpfulUtils {
+
     public static List<Integer> getTodayDate(){ //try to use modern date api , fail like assert 30.06.2022 - get 30.05.2022
         Calendar calendar = Calendar.getInstance();
         int[] monthsNormal = new int[]{31,28,31,30,31,30,31,31,30,31,30,31};
@@ -57,12 +56,11 @@ public class HelpfulUtils {
 
     public static boolean checkString(String s) {
 
-        if (s.charAt(0) == '-') s = s.substring(1);
+        if(s.length() == 0 || (s.length() == 1 && !Character.isDigit(s.charAt(0))) || s.length() > 6) return false;
 
-        if (s.length() > 6) return false;
-        for (int i = 0; i < s.length(); i++) {
-
-            if (!Character.isDigit(s.charAt(i))) return false;
+        for (int i = s.charAt(0) == '-' ? 1 : 0 ; i < s.length(); i++) {
+            char current = s.charAt(i);
+            if (!Character.isDigit(current)) return false;
         }
 
         return true;
@@ -122,4 +120,22 @@ public class HelpfulUtils {
             e.printStackTrace();
         }
     }
+
+    public static String[] cleanText(String text){
+
+        Queue<Character> queue = new LinkedList<>();
+
+        for (int i = 0; i < text.length(); i++) {
+            char cur = text.charAt(i);
+            if (cur != ' ') queue.add(cur);
+            else if (queue.peek() != ' ') queue.add(cur);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        while (!queue.isEmpty()){
+            sb.append(queue.poll());
+        }
+        return sb.toString().split(" ");
+    }
+
 }

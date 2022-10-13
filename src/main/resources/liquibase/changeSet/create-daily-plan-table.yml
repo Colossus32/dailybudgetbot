@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: DEV-3
+      author: Colossus
+      changes:
+        - createTable:
+            tableName: daily_plan
+            remarks: saving daily plan for each day
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: daily_plan_pk
+                    nullable: false
+              - column:
+                  name: plan
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date
+                  type: timestamp
+                  constraints:
+                    nullable: false
