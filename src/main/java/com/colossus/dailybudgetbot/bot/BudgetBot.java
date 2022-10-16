@@ -21,6 +21,7 @@ import java.net.http.HttpResponse;
 public class BudgetBot {
 
     TelegramBot bot;
+    private int port;
 
     public BudgetBot() {
         try {
@@ -28,6 +29,7 @@ public class BudgetBot {
             String token = reader.readLine();
             reader.close();
             this.bot = new TelegramBot(token);
+            port = 8081;
         } catch (Exception e) {
             log.error("bot initialisation error");
             e.printStackTrace();
@@ -87,7 +89,7 @@ public class BudgetBot {
 
         //get all chatId subscribed
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/chats/all"))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/chats/all",port)))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -95,7 +97,7 @@ public class BudgetBot {
 
             //get balance for previous month
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8081/api/v1/balance"))
+                    .uri(URI.create(String.format("http://localhost:%d/api/v1/balance",port)))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -115,7 +117,7 @@ public class BudgetBot {
     //@Scheduled(cron = "${report.dailyremindertest}")
     public void sendDailyReminder(){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/chats/all"))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/chats/all",port)))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -123,7 +125,7 @@ public class BudgetBot {
 
             //get daily plan
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8081/api/v1/report"))
+                    .uri(URI.create(String.format("http://localhost:%d/api/v1/report",port)))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -166,7 +168,7 @@ public class BudgetBot {
     private void botStart(Long chatId){
         //save chatID to the database
         HttpRequest requestForSave = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/chats?id=" + chatId))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/chats?id=%d",port,chatId)))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
         try {
@@ -181,7 +183,7 @@ public class BudgetBot {
 
     private void botMonth(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/exps"))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/exps",port)))
                 .build();
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -193,7 +195,7 @@ public class BudgetBot {
 
     private void botDelete(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/today"))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/today",port)))
                 .DELETE()
                 .build();
         try {
@@ -216,10 +218,9 @@ public class BudgetBot {
 
     private void botSubscribe(Long chatId){
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8081/api/v1/chats/subscriber?id=" + chatId))
+                .uri(URI.create(String.format("http://localhost:%d/api/v1/chats/subscriber?id=%d",port,chatId)))
                 .PUT(HttpRequest.BodyPublishers.noBody())
                 .build();
-
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
             String subscribeText = "Now you're subscribed for the reports.";
@@ -239,7 +240,7 @@ public class BudgetBot {
             if (HelpfulUtils.checkString(s)) {
 
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8081/api/v1/add/" + s))
+                        .uri(URI.create(String.format("http://localhost:%d/api/v1/add/%s",port,s)))
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
                 try {

@@ -123,18 +123,24 @@ public class HelpfulUtils {
 
     public static String[] cleanText(String text){
 
-        Queue<Character> queue = new LinkedList<>();
-
-        for (int i = 0; i < text.length(); i++) {
-            char cur = text.charAt(i);
-            if (cur != ' ') queue.add(cur);
-            else if (queue.peek() != ' ') queue.add(cur);
-        }
+        char lastChar = 'a';
 
         StringBuilder sb = new StringBuilder();
-        while (!queue.isEmpty()){
-            sb.append(queue.poll());
+
+        for (int i = 0; i < text.length(); i++) {
+            char current = text.charAt(i);
+            if (current != ' ') {
+                lastChar = current;
+                sb.append(current);
+            }
+            else {
+                if (lastChar != ' ') {
+                    sb.append(current);
+                    lastChar = current;
+                }
+            }
         }
+
         return sb.toString().split(" ");
     }
 
